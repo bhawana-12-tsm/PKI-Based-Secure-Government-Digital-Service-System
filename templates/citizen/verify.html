@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Verify Documents — Nepal Digital Services{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-shield-alt"></i> Document Verification</h1>
+        <p class="page-subtitle">Verify the digital signatures of your submitted documents using PKI</p>
+    </div>
+
+    <div class="pki-info-banner">
+        <div class="pki-banner-icon"><i class="fas fa-info-circle"></i></div>
+        <div>
+            <strong>How Document Verification Works</strong>
+            <p>The system retrieves your public key from the database and uses it to verify the RSA digital signature stored with each document. If the document has been modified, the signature will be invalid.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-file-signature"></i> Your Signed Documents</h3>
+        </div>
+        <div class="card-body p-0">
+            {% if documents %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Document Type</th>
+                            <th>Application</th>
+                            <th>Service</th>
+                            <th>SHA-256 Hash</th>
+                            <th>Uploaded</th>
+                            <th>Verification</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in documents %}
+                        <tr id="row-{{ doc.id }}">
+                            <td><i class="fas fa-file-alt text-primary"></i> {{ doc.document_type }}</td>
+                            <td><code>{{ doc.tracking_number }}</code></td>
+                            <td>{{ doc.service_type.replace('_',' ').title() }}</td>
+                            <td><code class="hash-code">{{ doc.file_hash[:16] }}...</code></td>
+                            <td class="text-muted">{{ doc.uploaded_at[:10] }}</td>
+                            <td id="status-{{ doc.id }}">
+                                {% if doc.verification_result == 'valid' %}
+                                    <span class="verify-badge valid"><i class="fas fa-check-circle"></i> VALID</span>
+                                {% elif doc.verification_result == 'tampered' %}
+                                    <span class="verify-badge tampered"><i class="fas fa-exclamation-triangle"></i> TAMPERED</span>
+                                {% elif doc.verification_result == 'invalid' %}
+                                    <span class="verify-badge invalid"><i class="fas fa-times-circle"></i> INVALID</span>
+                                {% else %}
+                                    <span class="text-muted">Not verified</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary verify-btn" data-doc-id="{{ doc.id }}">
+                                    <i class="fas fa-search"></i> Verify
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-file-signature"></i>
+                <p>No signed documents yet. Submit an application to generate signed documents.</p>
+                <a href="{{ url_for('citizen_dashboard') }}" class="btn btn-primary btn-sm">Go to Dashboard</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.querySelectorAll('.verify-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const docId = this.dataset.docId;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        this.disabled = true;
+        fetch(`/verify/${docId}`, {method:'POST'})
+        .then(r => r.json())
+        .then(data => {
+            const statusCell = document.getElementById(`status-${docId}`);
+            let badge = '';
+            if (data.result === 'valid') badge = '<span class="verify-badge valid"><i class="fas fa-check-circle"></i> VALID SIGNATURE</span>';
+            else if (data.result === 'tampered') badge = '<span class="verify-badge tampered"><i class="fas fa-exclamation-triangle"></i> DOCUMENT HAS BEEN TAMPERED</span>';
+            else badge = '<span class="verify-badge invalid"><i class="fas fa-times-circle"></i> INVALID SIGNATURE</span>';
+            statusCell.innerHTML = badge;
+            this.innerHTML = '<i class="fas fa-redo"></i>';
+            this.disabled = false;
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Create Government Officer — Admin{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <div>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-sm btn-outline mb-2"><i class="fas fa-arrow-left"></i> Back</a>
+            <h1 class="page-title"><i class="fas fa-user-tie"></i> Create Government Officer Account</h1>
+            <p class="page-subtitle">Officer accounts can review, verify, approve, and reject citizen applications.</p>
+        </div>
+    </div>
+    <div style="max-width:620px;">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-user-plus"></i> Officer Details</h3></div>
+            <div class="card-body">
+                <div class="pki-info-banner mb-3">
+                    <div class="pki-banner-icon"><i class="fas fa-certificate"></i></div>
+                    <div>
+                        <strong>PKI Certificate Issued Automatically</strong>
+                        <p>A digital certificate will be generated and issued to the officer upon account creation.</p>
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('admin_create_officer') }}" class="auth-form">
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label class="form-label required">Full Name</label>
+                            <input type="text" name="full_name" class="form-control" placeholder="Officer's full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="Login username" required>
+                        </div>
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label class="form-label required">Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="official@gov.np" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Phone</label>
+                            <input type="text" name="phone" class="form-control" placeholder="98XXXXXXXX" pattern="[0-9]{10}" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Initial Password</label>
+                        <div class="input-group-pw">
+                            <input type="password" name="password" class="form-control" id="officerPw" placeholder="Min. 8 characters" minlength="8" required>
+                            <button type="button" class="pw-toggle" onclick="togglePw('officerPw',this)"><i class="fas fa-eye"></i></button>
+                        </div>
+                        <small class="text-muted">Share this securely with the officer. They should change it after first login.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full mt-2">
+                        <i class="fas fa-user-plus"></i> Create Officer Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

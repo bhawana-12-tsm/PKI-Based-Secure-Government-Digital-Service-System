@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Driving Licence Application — Nepal Digital Services{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <div>
+            <a href="{{ url_for('citizen_dashboard') }}" class="btn btn-sm btn-outline mb-2"><i class="fas fa-arrow-left"></i> Back</a>
+            <h1 class="page-title"><i class="fas fa-id-card"></i> Driving Licence Application</h1>
+            <p class="page-subtitle">Complete the form below. Your documents will be digitally signed using PKI before payment.</p>
+        </div>
+    </div>
+
+    <div class="workflow-steps mb-4">
+        <div class="wf-step active"><div class="wf-icon"><i class="fas fa-file-alt"></i></div><span>Fill Form</span></div>
+        <div class="wf-line"></div>
+        <div class="wf-step"><div class="wf-icon"><i class="fas fa-upload"></i></div><span>Upload Docs</span></div>
+        <div class="wf-line"></div>
+        <div class="wf-step"><div class="wf-icon"><i class="fas fa-file-signature"></i></div><span>PKI Sign</span></div>
+        <div class="wf-line"></div>
+        <div class="wf-step"><div class="wf-icon"><i class="fas fa-credit-card"></i></div><span>Payment</span></div>
+        <div class="wf-line"></div>
+        <div class="wf-step"><div class="wf-icon"><i class="fas fa-paper-plane"></i></div><span>Submitted</span></div>
+    </div>
+
+    <div class="pki-info-banner">
+        <div class="pki-banner-icon"><i class="fas fa-shield-alt"></i></div>
+        <div><strong>PKI-Secured Submission</strong><p>Your documents will be hashed (SHA-256), digitally signed with your RSA private key, and encrypted (AES-256) before payment.</p></div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="service-form" id="serviceForm">
+        <input type="hidden" name="_nonce" value="{{ nonce }}">
+
+        <div class="form-card">
+            <div class="form-card-header"><i class="fas fa-user"></i> Applicant Information</div>
+            <div class="form-card-body">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label required">Applicant Name</label>
+                        <input type="text" name="full_name" class="form-control" value="{{ form_data.get('full_name','') }}" required placeholder="Full name as in citizenship">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Citizenship Number</label>
+                        <input type="text" name="citizenship_number" class="form-control" value="{{ form_data.get('citizenship_number','') }}" required placeholder="e.g. 12-34-56-78901">
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label required">Date of Birth</label>
+                        <input type="date" name="date_of_birth" class="form-control" value="{{ form_data.get('date_of_birth','') }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Contact Number</label>
+                        <input type="text" name="phone" class="form-control" value="{{ form_data.get('phone','') }}" required placeholder="98XXXXXXXX" pattern="[0-9]{10}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-card-header"><i class="fas fa-map-marker-alt"></i> Address Information</div>
+            <div class="form-card-body">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label required">Province</label>
+                        <select name="province" class="form-control" id="province" required>
+                            <option value="">Select Province</option>
+                            {% for prov in provinces %}
+                            <option value="{{ prov }}" {% if form_data.get('province') == prov %}selected{% endif %}>{{ prov }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">District</label>
+                        <select name="district" class="form-control" id="district" required>
+                            <option value="">Select District</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Full Address</label>
+                    <input type="text" name="address" class="form-control" value="{{ form_data.get('address','') }}" required placeholder="Ward, Tole, Street, Municipality">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-card-header"><i class="fas fa-upload"></i> Required Documents</div>
+            <div class="form-card-body">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label required">Citizenship Certificate</label>
+                        <div class="file-upload-area">
+                            <input type="file" name="citizenship_copy" id="citizenship_copy" accept=".jpg,.jpeg,.png,.pdf" required>
+                            <div class="file-upload-inner">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click or drag to upload</p>
+                                <small>JPG, PNG, PDF — Max 5MB</small>
+                            </div>
+                        </div>
+                        <div class="file-preview" id="preview-citizenship_copy"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Passport Size Photo</label>
+                        <div class="file-upload-area">
+                            <input type="file" name="passport_photo" id="passport_photo" accept=".jpg,.jpeg,.png" required>
+                            <div class="file-upload-inner">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click or drag to upload</p>
+                                <small>JPG, PNG — Max 5MB</small>
+                            </div>
+                        </div>
+                        <div class="file-preview" id="preview-passport_photo"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-submit-section">
+            <div class="submit-note"><i class="fas fa-info-circle"></i> Documents will be digitally signed with PKI, then you'll proceed to payment.</div>
+            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                <i class="fas fa-arrow-right"></i> Continue to Payment
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/service_form.js') }}"></script>{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Users — Admin{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-users"></i> User Management</h1>
+        <p class="page-subtitle">Manage citizens, government officers, and roles</p>
+    </div>
+
+    <!-- Government Officers -->
+    <div class="card mb-4">
+        <div class="card-header card-header-flex">
+            <h3 class="card-title"><i class="fas fa-user-tie"></i> Government Officers ({{ officers|length }})</h3>
+            <a href="{{ url_for('admin_create_officer') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Officer</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr><th>Name</th><th>Username</th><th>Email</th><th>Phone</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for user in officers %}
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:0.5rem;">
+                                    <div class="user-row-avatar" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">{{ user.full_name[0].upper() }}</div>
+                                    {{ user.full_name }}
+                                </div>
+                            </td>
+                            <td><code>@{{ user.username }}</code></td>
+                            <td class="text-muted">{{ user.email }}</td>
+                            <td class="text-muted">{{ user.phone or '—' }}</td>
+                            <td>{% if user.is_active %}<span class="status-badge status-approved">Active</span>{% else %}<span class="status-badge status-rejected">Inactive</span>{% endif %}</td>
+                            <td class="text-muted">{{ user.created_at[:10] }}</td>
+                            <td><a href="{{ url_for('admin_user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline">Manage</a></td>
+                        </tr>
+                        {% endfor %}
+                        {% if not officers %}
+                        <tr><td colspan="7" class="text-center text-muted py-3">No government officers yet. <a href="{{ url_for('admin_create_officer') }}">Add one</a>.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Citizens -->
+    <div class="card">
+        <div class="card-header card-header-flex">
+            <h3 class="card-title"><i class="fas fa-users"></i> Citizens ({{ citizens|length }})</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr><th>Name</th><th>Username</th><th>Email</th><th>Applications</th><th>PKI Cert</th><th>Status</th><th>Registered</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for user in citizens %}
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:0.5rem;">
+                                    <div class="user-row-avatar">{{ user.full_name[0].upper() }}</div>
+                                    {{ user.full_name }}
+                                </div>
+                            </td>
+                            <td><code>@{{ user.username }}</code></td>
+                            <td class="text-muted">{{ user.email }}</td>
+                            <td><span class="count-badge">{{ user.app_count }}</span></td>
+                            <td>{% if user.public_key %}<span class="cert-mini-badge"><i class="fas fa-certificate"></i> Issued</span>{% else %}<span class="text-muted">None</span>{% endif %}</td>
+                            <td>{% if user.is_active %}<span class="status-badge status-approved">Active</span>{% else %}<span class="status-badge status-rejected">Inactive</span>{% endif %}</td>
+                            <td class="text-muted">{{ user.created_at[:10] }}</td>
+                            <td><a href="{{ url_for('admin_user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline">View</a></td>
+                        </tr>
+                        {% endfor %}
+                        {% if not citizens %}
+                        <tr><td colspan="8" class="text-center text-muted py-4">No citizens registered yet.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Officer Dashboard — Nepal Digital Services{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> Government Officer Dashboard</h1>
+            <p class="page-subtitle">Review and process citizen service applications</p>
+        </div>
+        <span class="officer-badge"><i class="fas fa-user-tie"></i> Government Officer</span>
+    </div>
+
+    <div class="stats-grid stats-grid-5">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#6C8EBF,#4A6FA5)"><i class="fas fa-folder"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.total }}</div><div class="stat-label">Total Applications</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-inbox"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.pending }}</div><div class="stat-label">Pending Review</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-search"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.under_review }}</div><div class="stat-label">Under Review</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.approved }}</div><div class="stat-label">Approved</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.rejected }}</div><div class="stat-label">Rejected</div></div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h3></div>
+            <div class="card-body">
+                <div class="quick-actions-grid">
+                    <a href="{{ url_for('officer_applications') }}" class="quick-action-btn">
+                        <div class="qa-icon" style="background:#EBF2FF"><i class="fas fa-inbox" style="color:#4A6FA5"></i></div>
+                        <span>All Applications</span>
+                    </a>
+                    <a href="{{ url_for('officer_applications') }}?status=pending" class="quick-action-btn">
+                        <div class="qa-icon" style="background:#FFF8E1"><i class="fas fa-clock" style="color:#f57f17"></i></div>
+                        <span>Pending</span>
+                    </a>
+                    <a href="{{ url_for('officer_applications') }}?status=under_review" class="quick-action-btn">
+                        <div class="qa-icon" style="background:#E0F7FA"><i class="fas fa-search" style="color:#00838f"></i></div>
+                        <span>Under Review</span>
+                    </a>
+                    <a href="{{ url_for('officer_applications') }}?status=approved" class="quick-action-btn">
+                        <div class="qa-icon" style="background:#E8F5E9"><i class="fas fa-check-circle" style="color:#2e7d32"></i></div>
+                        <span>Approved</span>
+                    </a>
+                    <a href="{{ url_for('officer_applications') }}?status=rejected" class="quick-action-btn">
+                        <div class="qa-icon" style="background:#FCE4EC"><i class="fas fa-times-circle" style="color:#c2185b"></i></div>
+                        <span>Rejected</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-info-circle"></i> Officer Responsibilities</h3></div>
+            <div class="card-body">
+                <div class="officer-info-list">
+                    <div class="officer-info-item"><i class="fas fa-check text-success"></i> Review citizen applications and uploaded documents</div>
+                    <div class="officer-info-item"><i class="fas fa-check text-success"></i> Verify digital signatures using PKI</div>
+                    <div class="officer-info-item"><i class="fas fa-check text-success"></i> Mark applications as Under Review</div>
+                    <div class="officer-info-item"><i class="fas fa-check text-success"></i> Approve or reject applications with remarks</div>
+                    <div class="officer-info-item"><i class="fas fa-check text-success"></i> Download submitted documents for verification</div>
+                    <div class="officer-info-item"><i class="fas fa-times text-danger"></i> Cannot manage user accounts or system settings</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header card-header-flex">
+            <h3 class="card-title"><i class="fas fa-history"></i> Recent Applications</h3>
+            <a href="{{ url_for('officer_applications') }}" class="btn btn-sm btn-outline">View All</a>
+        </div>
+        <div class="card-body p-0">
+            {% if recent_apps %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tracking No.</th>
+                            <th>Citizen</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in recent_apps %}
+                        <tr>
+                            <td><code>{{ app.tracking_number }}</code></td>
+                            <td>{{ app.full_name }}</td>
+                            <td>
+                                {% if app.service_type == 'driving_license' %}<span class="service-tag tag-blue"><i class="fas fa-id-card"></i> Driving License</span>
+                                {% elif app.service_type == 'business_registration' %}<span class="service-tag tag-green"><i class="fas fa-building"></i> Business Reg.</span>
+                                {% else %}<span class="service-tag tag-yellow"><i class="fas fa-file-invoice-dollar"></i> Tax Filing</span>{% endif %}
+                            </td>
+                            <td><span class="status-badge status-{{ app.status }}">{{ app.status.replace('_',' ').title() }}</span></td>
+                            <td class="text-muted">{{ app.submitted_at[:10] }}</td>
+                            <td><a href="{{ url_for('officer_application_detail', app_id=app.id) }}" class="btn btn-sm btn-primary">Review</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No applications yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

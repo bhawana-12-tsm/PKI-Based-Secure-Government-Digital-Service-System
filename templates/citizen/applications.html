@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}My Applications — Nepal Digital Services{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-folder-open"></i> My Applications</h1>
+        <p class="page-subtitle">Track all your submitted government service applications</p>
+    </div>
+    <div class="card">
+        <div class="card-header card-header-flex">
+            <h3 class="card-title">Applications</h3>
+            <div class="header-actions">
+                <a href="{{ url_for('apply_service', service_type='driving_license') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Application</a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if applications %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tracking No.</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td><code>{{ app.tracking_number }}</code></td>
+                            <td>
+                                {% if app.service_type == 'driving_license' %}
+                                    <span class="service-tag tag-blue"><i class="fas fa-id-card"></i> Driving Licence</span>
+                                {% elif app.service_type == 'business_registration' %}
+                                    <span class="service-tag tag-green"><i class="fas fa-building"></i> Business Reg.</span>
+                                {% else %}
+                                    <span class="service-tag tag-yellow"><i class="fas fa-file-invoice-dollar"></i> Tax Filing</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ app.status }}">{{ app.status.replace('_',' ').title() }}</span>
+                                {% if app.additional_docs_requested %}
+                                <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Docs Requested</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.payment_status == 'paid' %}
+                                <span class="cert-mini-badge"><i class="fas fa-check-circle"></i> Paid</span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted">{{ app.submitted_at[:10] }}</td>
+                            <td>
+                                <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                                    <a href="{{ url_for('application_detail', app_id=app.id) }}" class="btn btn-sm btn-outline">View</a>
+                                    {% if app.status == 'approved' and cert_map.get(app.id) %}
+                                    <a href="{{ url_for('download_approval_cert', app_id=app.id) }}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-download"></i> Certificate
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>You haven't submitted any applications yet.</p>
+                <div class="empty-actions">
+                    <a href="{{ url_for('apply_service', service_type='driving_license') }}" class="btn btn-primary">Apply for Driving Licence</a>
+                    <a href="{{ url_for('apply_service', service_type='business_registration') }}" class="btn btn-outline">Register a Business</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

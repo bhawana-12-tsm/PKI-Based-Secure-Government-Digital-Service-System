@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs — Admin{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-clipboard-list"></i> Audit Logs</h1>
+        <p class="page-subtitle">Complete system activity trail for security and compliance</p>
+    </div>
+    <div class="card">
+        <div class="card-header card-header-flex">
+            <h3 class="card-title">Recent Activity (Last 200 Events)</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="text-muted">{{ log.id }}</td>
+                            <td class="text-muted">{{ log.timestamp[:16].replace('T',' ') }}</td>
+                            <td>{{ log.username or '<em>System</em>' }}</td>
+                            <td>
+                                <span class="action-badge action-{{ log.action.lower().split('_')[0] }}">
+                                    {% if 'LOGIN' in log.action %}<i class="fas fa-sign-in-alt"></i>
+                                    {% elif 'LOGOUT' in log.action %}<i class="fas fa-sign-out-alt"></i>
+                                    {% elif 'REGISTER' in log.action %}<i class="fas fa-user-plus"></i>
+                                    {% elif 'SUBMIT' in log.action %}<i class="fas fa-paper-plane"></i>
+                                    {% elif 'SIGN' in log.action %}<i class="fas fa-file-signature"></i>
+                                    {% elif 'VERIFY' in log.action %}<i class="fas fa-shield-alt"></i>
+                                    {% elif 'APPROVE' in log.action %}<i class="fas fa-check"></i>
+                                    {% elif 'REJECT' in log.action %}<i class="fas fa-times"></i>
+                                    {% else %}<i class="fas fa-circle"></i>{% endif %}
+                                    {{ log.action.replace('_', ' ') }}
+                                </span>
+                            </td>
+                            <td class="text-muted">{{ log.details or '—' }}</td>
+                            <td><code>{{ log.ip_address or '—' }}</code></td>
+                        </tr>
+                        {% endfor %}
+                        {% if not logs %}
+                        <tr><td colspan="6" class="text-center text-muted py-4">No audit logs yet.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

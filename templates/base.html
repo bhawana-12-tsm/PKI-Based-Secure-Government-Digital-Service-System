@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>{% block title %}Nepal Digital Government Services{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-brand">
+                <div class="brand-icon"><i class="fas fa-landmark"></i></div>
+                <div class="brand-text">
+                    <span class="brand-name">Nepal Digital Services</span>
+                    <span class="brand-sub">सरकारी डिजिटल सेवा</span>
+                </div>
+            </a>
+            <div class="nav-menu" id="navMenu">
+                {% if session.get('user_id') %}
+                    {% if session.get('role') == 'admin' %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('admin_users') }}" class="nav-link {% if request.endpoint == 'admin_users' %}active{% endif %}">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="{{ url_for('admin_applications') }}" class="nav-link {% if request.endpoint == 'admin_applications' %}active{% endif %}">
+                            <i class="fas fa-folder-open"></i> Applications
+                        </a>
+                        <a href="{{ url_for('admin_audit_logs') }}" class="nav-link {% if request.endpoint == 'admin_audit_logs' %}active{% endif %}">
+                            <i class="fas fa-clipboard-list"></i> Audit Logs
+                        </a>
+
+                    {% elif session.get('role') == 'officer' %}
+                        <a href="{{ url_for('officer_dashboard') }}" class="nav-link {% if request.endpoint == 'officer_dashboard' %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('officer_applications') }}" class="nav-link {% if request.endpoint == 'officer_applications' %}active{% endif %}">
+                            <i class="fas fa-file-alt"></i> Applications
+                        </a>
+
+                    {% else %}
+                        <a href="{{ url_for('citizen_dashboard') }}" class="nav-link {% if request.endpoint == 'citizen_dashboard' %}active{% endif %}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('my_applications') }}" class="nav-link {% if request.endpoint == 'my_applications' %}active{% endif %}">
+                            <i class="fas fa-folder-open"></i> My Applications
+                        </a>
+                        <a href="{{ url_for('verify_documents') }}" class="nav-link {% if request.endpoint == 'verify_documents' %}active{% endif %}">
+                            <i class="fas fa-shield-alt"></i> Verify
+                        </a>
+                    {% endif %}
+
+                    <div class="nav-user-menu">
+                        <button class="nav-user-btn" id="userMenuBtn">
+                            <div class="user-avatar">{{ session.get('full_name', 'U')[0].upper() }}</div>
+                            <span class="user-name-nav">{{ session.get('full_name', 'User').split()[0] }}</span>
+                            <span class="role-pill role-pill-{{ session.get('role','citizen') }}">{{ session.get('role','citizen').title() }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            {% if session.get('role') == 'citizen' %}
+                            <a href="{{ url_for('profile') }}" class="dropdown-item">
+                                <i class="fas fa-user-cog"></i> My Profile
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('logout') }}" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn-nav-primary">Register</a>
+                {% endif %}
+            </div>
+            <button class="nav-toggle" id="navToggle"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">
+            {% if cat == 'pki' %}<i class="fas fa-shield-check"></i>
+            {% elif cat == 'success' %}<i class="fas fa-check-circle"></i>
+            {% elif cat == 'danger' %}<i class="fas fa-exclamation-circle"></i>
+            {% elif cat == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+            {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+            {{ msg }}
+            <button class="flash-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-landmark"></i>
+                        <div>
+                            <strong>Nepal Digital Government Services</strong>
+                            <small>नेपाल सरकार — डिजिटल सेवा केन्द्र</small>
+                        </div>
+                    </div>
+                    <p class="footer-desc">Secure digital services for citizens of Nepal. All transactions are protected with PKI-based encryption and digital signatures.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Driving License</a></li>
+                        <li><a href="#">Business Registration</a></li>
+                        <li><a href="#">Tax Filing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Security</h4>
+                    <ul>
+                        <li><a href="#">PKI Infrastructure</a></li>
+                        <li><a href="#">Digital Certificates</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> Singha Durbar, Kathmandu</li>
+                        <li><i class="fas fa-phone"></i> 01-4200000</li>
+                        <li><i class="fas fa-envelope"></i> info@gov.np</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Nepal Government Digital Services. Academic PKI Demonstration Project.</p>
+                <div class="footer-badges">
+                    <span class="badge-secure"><i class="fas fa-lock"></i> RSA 2048-bit</span>
+                    <span class="badge-secure"><i class="fas fa-certificate"></i> PKI Certified</span>
+                    <span class="badge-secure"><i class="fas fa-shield-alt"></i> SHA-256</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}My Profile — Nepal Digital Services{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-user-cog"></i> My Profile</h1>
+        <p class="page-subtitle">Manage your account and view your digital certificate status</p>
+    </div>
+    <div class="detail-grid">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-user"></i> Personal Information</h3>
+            </div>
+            <div class="card-body">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar-lg">{{ user.full_name[0].upper() }}</div>
+                    <div>
+                        <h3>{{ user.full_name }}</h3>
+                        <p class="text-muted">@{{ user.username }}</p>
+                        <span class="role-badge role-citizen"><i class="fas fa-user"></i> Citizen</span>
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('profile') }}" class="auth-form mt-4">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="full_name" class="form-control" value="{{ user.full_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" name="phone" class="form-control" value="{{ user.phone or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="{{ user.email }}" disabled>
+                        <small class="text-muted">Email cannot be changed.</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-certificate"></i> Digital Certificate</h3>
+            </div>
+            <div class="card-body">
+                {% if cert %}
+                <div class="cert-display">
+                    <div class="cert-status-header">
+                        <div class="cert-status-icon {% if cert.is_valid %}valid{% else %}invalid{% endif %}">
+                            <i class="fas fa-{% if cert.is_valid %}shield-check{% else %}ban{% endif %}"></i>
+                        </div>
+                        <div>
+                            <h4>{% if cert.is_valid %}Certificate Active{% else %}Certificate Revoked{% endif %}</h4>
+                            <p>Issued by Nepal Government PKI Root CA</p>
+                        </div>
+                    </div>
+                    {% if not cert.is_valid %}
+                    <div class="verify-result tampered mb-3" style="border-radius:8px;">
+                        <i class="fas fa-ban"></i>
+                        Your certificate has been revoked{% if cert.revocation_reason %}: {{ cert.revocation_reason }}{% endif %}.
+                        Contact the administrator to have a new certificate issued.
+                    </div>
+                    {% endif %}
+                    <div class="cert-details-list">
+                        <div class="cert-detail-row">
+                            <span class="cert-detail-label">Status</span>
+                            <span class="cert-detail-val">
+                                {% if cert.is_valid %}<span class="verify-badge valid" style="font-size:0.78rem;"><i class="fas fa-check-circle"></i> Active</span>
+                                {% else %}<span class="verify-badge tampered" style="font-size:0.78rem;"><i class="fas fa-ban"></i> Revoked</span>{% endif %}
+                            </span>
+                        </div>
+                        <div class="cert-detail-row">
+                            <span class="cert-detail-label">Serial Number</span>
+                            <code class="cert-detail-val">{{ cert.serial_number[:20] }}...</code>
+                        </div>
+                        <div class="cert-detail-row">
+                            <span class="cert-detail-label">Issued At</span>
+                            <span class="cert-detail-val">{{ cert.issued_at[:10] }}</span>
+                        </div>
+                        <div class="cert-detail-row">
+                            <span class="cert-detail-label">Expires At</span>
+                            <span class="cert-detail-val">{{ cert.expires_at[:10] if cert.expires_at else 'N/A' }}</span>
+                        </div>
+                        <div class="cert-detail-row">
+                            <span class="cert-detail-label">Algorithm</span>
+                            <span class="cert-detail-val">RSA 2048-bit + SHA-256</span>
+                        </div>
+                        <div class="cert-detail-row">
+                            <span class="cert-detail-label">Doc. Encryption</span>
+                            <span class="cert-detail-val"><i class="fas fa-lock text-primary"></i> AES-256 Hybrid</span>
+                        </div>
+                        <div class="cert-detail-row">
+                            <span class="cert-detail-label">Issuer</span>
+                            <span class="cert-detail-val">Nepal Gov Root CA</span>
+                        </div>
+                    </div>
+                    <div class="cert-note">
+                        <i class="fas fa-lock"></i>
+                        Your private key is securely stored in an encrypted keystore and is never exposed. Documents are encrypted with AES-256 hybrid encryption.
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-certificate"></i>
+                    <p>No certificate found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Nepal Digital Government Services — Home{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-shield-alt"></i> PKI-Secured Platform</div>
+        <h1 class="hero-title">Digital Government<br><span class="hero-accent">Services for Nepal</span></h1>
+        <p class="hero-subtitle">Apply for government services securely from anywhere. Your documents are protected with RSA-2048 encryption and digital signatures.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-user-plus"></i> Get Started
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat"><span class="stat-num">RSA 2048</span><span class="stat-label">Encryption</span></div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat"><span class="stat-num">SHA-256</span><span class="stat-label">Document Hash</span></div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat"><span class="stat-num">PKI</span><span class="stat-label">Digital Certs</span></div>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="security-ring">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="ring ring-3"></div>
+            <div class="security-icon"><i class="fas fa-shield-alt"></i></div>
+        </div>
+        <div class="floating-card card-1"><i class="fas fa-certificate"></i><span>Digital Certificate Issued</span></div>
+        <div class="floating-card card-2"><i class="fas fa-file-signature"></i><span>Document Signed</span></div>
+        <div class="floating-card card-3"><i class="fas fa-check-circle"></i><span>Signature Verified</span></div>
+    </div>
+</section>
+
+<section class="services-preview">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-eyebrow">Available Services</span>
+            <h2>Government Services <span class="text-accent">Online</span></h2>
+            <p>Apply for essential government services without visiting offices. Fully digital, fully secure.</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon-wrap" style="background: linear-gradient(135deg,#6C8EBF,#4A6FA5)">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <h3>Driving License</h3>
+                <p>Apply for a new driving license or renewal online. Submit required documents digitally.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> Online Application</li>
+                    <li><i class="fas fa-check"></i> Document Upload</li>
+                    <li><i class="fas fa-check"></i> Digital Signature</li>
+                    <li><i class="fas fa-check"></i> Status Tracking</li>
+                </ul>
+                <a href="{{ url_for('register') }}" class="btn btn-service">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card featured">
+                <div class="service-badge">Most Popular</div>
+                <div class="service-icon-wrap" style="background: linear-gradient(135deg,#4A6FA5,#2C4A7C)">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3>Business Registration</h3>
+                <p>Register your business with the government digitally. Faster and paperless process.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> Online Registration</li>
+                    <li><i class="fas fa-check"></i> Business Plan Upload</li>
+                    <li><i class="fas fa-check"></i> PKI Verification</li>
+                    <li><i class="fas fa-check"></i> Instant Tracking</li>
+                </ul>
+                <a href="{{ url_for('register') }}" class="btn btn-service">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card">
+                <div class="service-icon-wrap" style="background: linear-gradient(135deg,#6C8EBF,#4A6FA5)">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <h3>Tax Filing</h3>
+                <p>File your annual taxes securely online. PAN-linked filing with digital verification.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> PAN-Based Filing</li>
+                    <li><i class="fas fa-check"></i> Income Statement</li>
+                    <li><i class="fas fa-check"></i> Secure Submission</li>
+                    <li><i class="fas fa-check"></i> Audit Trail</li>
+                </ul>
+                <a href="{{ url_for('register') }}" class="btn btn-service">Apply Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pki-section">
+    <div class="container">
+        <div class="pki-grid">
+            <div class="pki-content">
+                <span class="section-eyebrow">Security Architecture</span>
+                <h2>Powered by <span class="text-accent">Public Key Infrastructure</span></h2>
+                <p>Every transaction on this platform is secured with industry-standard PKI. Your digital identity is cryptographically proven.</p>
+                <div class="pki-steps">
+                    <div class="pki-step">
+                        <div class="step-num">01</div>
+                        <div class="step-content">
+                            <h4>Key Generation</h4>
+                            <p>RSA 2048-bit key pair automatically generated upon registration.</p>
+                        </div>
+                    </div>
+                    <div class="pki-step">
+                        <div class="step-num">02</div>
+                        <div class="step-content">
+                            <h4>Certificate Issuance</h4>
+                            <p>Digital certificate signed by Nepal Government Root CA.</p>
+                        </div>
+                    </div>
+                    <div class="pki-step">
+                        <div class="step-num">03</div>
+                        <div class="step-content">
+                            <h4>Document Signing</h4>
+                            <p>All submitted documents are hashed with SHA-256 and digitally signed.</p>
+                        </div>
+                    </div>
+                    <div class="pki-step">
+                        <div class="step-num">04</div>
+                        <div class="step-content">
+                            <h4>Verification</h4>
+                            <p>Signatures verifiable at any time ensuring non-repudiation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pki-visual">
+                <div class="cert-mockup">
+                    <div class="cert-header">
+                        <i class="fas fa-certificate"></i>
+                        <div>
+                            <strong>Digital Certificate</strong>
+                            <small>Nepal Government PKI</small>
+                        </div>
+                    </div>
+                    <div class="cert-fields">
+                        <div class="cert-field"><span>Subject:</span> Citizen Name</div>
+                        <div class="cert-field"><span>Issuer:</span> Nepal Gov Root CA</div>
+                        <div class="cert-field"><span>Algorithm:</span> RSA 2048-bit</div>
+                        <div class="cert-field"><span>Hash:</span> SHA-256</div>
+                        <div class="cert-field"><span>Valid Until:</span> 2025-12-31</div>
+                    </div>
+                    <div class="cert-footer">
+                        <div class="cert-sig-line"></div>
+                        <small><i class="fas fa-lock"></i> Digitally Signed by Nepal Government CA</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

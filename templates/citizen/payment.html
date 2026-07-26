@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Payment — {{ service_label }}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title"><i class="fas fa-credit-card"></i> Application Payment</h1>
+            <p class="page-subtitle">Complete payment to submit your {{ service_label }} application</p>
+        </div>
+    </div>
+
+    <!-- Workflow steps -->
+    <div class="workflow-steps mb-4">
+        <div class="wf-step done"><div class="wf-icon"><i class="fas fa-file-alt"></i></div><span>Fill Form</span></div>
+        <div class="wf-line done"></div>
+        <div class="wf-step done"><div class="wf-icon"><i class="fas fa-upload"></i></div><span>Upload Docs</span></div>
+        <div class="wf-line done"></div>
+        <div class="wf-step done"><div class="wf-icon"><i class="fas fa-file-signature"></i></div><span>PKI Sign</span></div>
+        <div class="wf-line done"></div>
+        <div class="wf-step active"><div class="wf-icon"><i class="fas fa-credit-card"></i></div><span>Payment</span></div>
+        <div class="wf-line"></div>
+        <div class="wf-step"><div class="wf-icon"><i class="fas fa-paper-plane"></i></div><span>Submitted</span></div>
+    </div>
+
+    <div class="payment-grid">
+        <!-- Order Summary -->
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-receipt"></i> Order Summary</h3></div>
+            <div class="card-body">
+                <div class="order-summary">
+                    <div class="order-row">
+                        <span class="order-label">Service</span>
+                        <span class="order-value">{{ service_label }}</span>
+                    </div>
+                    <div class="order-row">
+                        <span class="order-label">Government Fee</span>
+                        <span class="order-value">{{ amount }}</span>
+                    </div>
+                    <div class="order-row">
+                        <span class="order-label">Processing Fee</span>
+                        <span class="order-value">NPR 0</span>
+                    </div>
+                    <div class="order-divider"></div>
+                    <div class="order-row order-total">
+                        <span class="order-label">Total Amount</span>
+                        <span class="order-value">{{ amount }}</span>
+                    </div>
+                </div>
+                <div class="pki-info-box mt-3">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <strong>Documents Already Signed</strong>
+                        <p>Your documents have been digitally signed using PKI before this step.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-wallet"></i> Select Payment Method</h3></div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('process_payment', service_type=service_type) }}" id="paymentForm">
+                    <div class="payment-methods">
+                        <label class="payment-method-card selected" id="pm-esewa">
+                            <input type="radio" name="payment_method" value="esewa" checked>
+                            <div class="pm-logo pm-esewa">
+                                <span class="pm-logo-text" style="color:#60BB46;font-weight:800;font-size:1.1rem;">e</span>
+                                <span class="pm-logo-text" style="color:#60BB46;font-weight:700;">Sewa</span>
+                            </div>
+                            <div class="pm-info">
+                                <strong>eSewa</strong>
+                                <small>Nepal's leading digital wallet</small>
+                            </div>
+                            <div class="pm-check"><i class="fas fa-check-circle"></i></div>
+                        </label>
+
+                        <label class="payment-method-card" id="pm-khalti">
+                            <input type="radio" name="payment_method" value="khalti">
+                            <div class="pm-logo pm-khalti">
+                                <span style="color:#5C2D91;font-weight:800;font-size:1rem;">K</span>
+                            </div>
+                            <div class="pm-info">
+                                <strong>Khalti</strong>
+                                <small>Digital payment gateway</small>
+                            </div>
+                            <div class="pm-check"><i class="fas fa-check-circle"></i></div>
+                        </label>
+
+                        <label class="payment-method-card" id="pm-connectips">
+                            <input type="radio" name="payment_method" value="connectips">
+                            <div class="pm-logo pm-connectips">
+                                <span style="color:#003366;font-weight:800;font-size:0.75rem;">CONNECT<br>IPS</span>
+                            </div>
+                            <div class="pm-info">
+                                <strong>ConnectIPS</strong>
+                                <small>Interbank payment system</small>
+                            </div>
+                            <div class="pm-check"><i class="fas fa-check-circle"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="payment-note mt-3">
+                        <i class="fas fa-info-circle"></i>
+                        This is a <strong>mock payment simulation</strong> for academic demonstration purposes. No real money will be charged.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full btn-lg mt-4" id="payBtn">
+                        <i class="fas fa-lock"></i> Pay {{ amount }} Securely
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.querySelectorAll('.payment-method-card').forEach(card => {
+    card.addEventListener('click', function() {
+        document.querySelectorAll('.payment-method-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+    });
+});
+document.getElementById('paymentForm').addEventListener('submit', function() {
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Payment...';
+});
+</script>
+{% endblock %}

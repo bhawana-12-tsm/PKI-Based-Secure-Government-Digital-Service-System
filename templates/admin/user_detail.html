@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}User Detail — Admin{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <div>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-sm btn-outline mb-2"><i class="fas fa-arrow-left"></i> Back</a>
+            <h1 class="page-title"><i class="fas fa-user"></i> {{ user.full_name }}</h1>
+            <p class="page-subtitle">@{{ user.username }} &bull; {{ user.role.title() }}</p>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+            {% if user.is_active %}
+            <span class="status-badge status-approved">Active</span>
+            {% else %}
+            <span class="status-badge status-rejected">Inactive</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="detail-grid">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-id-card"></i> Personal Details</h3></div>
+            <div class="card-body">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar-lg"
+                         style="background:{% if user.role == 'officer' %}linear-gradient(135deg,#8b5cf6,#7c3aed){% else %}linear-gradient(135deg,#6C8EBF,#4A6FA5){% endif %}">
+                        {{ user.full_name[0].upper() }}
+                    </div>
+                    <div>
+                        <h3>{{ user.full_name }}</h3>
+                        <p class="text-muted">@{{ user.username }}</p>
+                        <span class="role-badge role-{{ user.role }}">
+                            <i class="fas fa-{% if user.role == 'officer' %}user-tie{% elif user.role == 'admin' %}user-shield{% else %}user{% endif %}"></i>
+                            {{ user.role.title() }}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-grid mt-4">
+                    <div class="info-item"><span class="info-label">Email</span><span class="info-value">{{ user.email }}</span></div>
+                    <div class="info-item"><span class="info-label">Phone</span><span class="info-value">{{ user.phone or '—' }}</span></div>
+                    <div class="info-item"><span class="info-label">Registered</span><span class="info-value">{{ user.created_at[:10] }}</span></div>
+                    <div class="info-item"><span class="info-label">Role</span><span class="info-value">{{ user.role.title() }}</span></div>
+                </div>
+
+                <!-- Toggle Active -->
+                {% if user.role != 'admin' %}
+                <div class="mt-4" style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                    <form method="POST" action="{{ url_for('admin_toggle_user', user_id=user.id) }}" style="display:inline;">
+                        <button type="submit" class="btn {% if user.is_active %}btn-danger{% else %}btn-success{% endif %} btn-sm"
+                                onclick="return confirm('Are you sure?')">
+                            <i class="fas fa-{% if user.is_active %}ban{% else %}check{% endif %}"></i>
+                            {% if user.is_active %}Deactivate{% else %}Activate{% endif %} Account
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Reset Password -->
+                <div class="mt-3">
+                    <button class="btn btn-outline btn-sm" onclick="document.getElementById('resetPwForm').classList.toggle('hidden-form')">
+                        <i class="fas fa-key"></i> Reset Password
+                    </button>
+                    <div id="resetPwForm" class="hidden-form mt-3">
+                        <form method="POST" action="{{ url_for('admin_reset_password', user_id=user.id) }}">
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" name="new_password" class="form-control" placeholder="Min. 8 characters" minlength="8" required>
+                                </div>
+                                <div style="display:flex;align-items:flex-end;">
+                                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Reset password for this user?')">
+                                        <i class="fas fa-save"></i> Save Password
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Certificate Revocation / Reissue -->
+                {% if cert %}
+                <div class="mt-3">
+                    {% if cert.is_valid %}
+                    <button class="btn btn-danger btn-sm" onclick="document.getElementById('revokeCertForm').classList.toggle('hidden-form')">
+                        <i class="fas fa-ban"></i> Revoke Certificate
+                    </button>
+                    <div id="revokeCertForm" class="hidden-form mt-3">
+                        <form method="POST" action="{{ url_for('admin_revoke_cert', user_id=user.id) }}">
+                            <div class="form-group">
+                                <label class="form-label">Revocation Reason</label>
+                                <input type="text" name="reason" class="form-control" placeholder="e.g. Key compromise, Privilege withdrawn..." value="Revoked by administrator">
+                            </div>
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Revoke this certificate? The user will not be able to sign new documents.')">
+                                <i class="fas fa-ban"></i> Confirm Revocation
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="verify-result tampered mb-2" style="display:inline-flex;">
+                        <i class="fas fa-ban"></i> Certificate Revoked — {{ cert.revocation_reason or 'No reason provided' }}
+                    </div><br>
+                    <form method="POST" action="{{ url_for('admin_reissue_cert', user_id=user.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Issue a new certificate for this user?')">
+                            <i class="fas fa-certificate"></i> Re-issue Certificate
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-certificate"></i> Digital Certificate</h3></div>
+            <div class="card-body">
+                {% if cert %}
+                <div class="cert-status-header">
+                    <div class="cert-status-icon {% if cert.is_valid %}valid{% else %}invalid{% endif %}">
+                        <i class="fas fa-{% if cert.is_valid %}shield-check{% else %}ban{% endif %}"></i>
+                    </div>
+                    <div>
+                        <h4>{% if cert.is_valid %}Certificate Active{% else %}Certificate Revoked{% endif %}</h4>
+                        <p>Issued by Nepal Government PKI Root CA</p>
+                    </div>
+                </div>
+                <div class="cert-details-list">
+                    <div class="cert-detail-row"><span class="cert-detail-label">Serial</span><code class="cert-detail-val">{{ cert.serial_number[:24] }}...</code></div>
+                    <div class="cert-detail-row"><span class="cert-detail-label">Status</span>
+                        <span class="cert-detail-val">
+                            {% if cert.is_valid %}
+                                <span class="verify-badge valid" style="font-size:0.78rem;"><i class="fas fa-check-circle"></i> Active</span>
+                            {% else %}
+                                <span class="verify-badge tampered" style="font-size:0.78rem;"><i class="fas fa-ban"></i> Revoked {{ cert.revoked_at[:10] if cert.revoked_at else '' }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="cert-detail-row"><span class="cert-detail-label">Issued</span><span class="cert-detail-val">{{ cert.issued_at[:10] }}</span></div>
+                    <div class="cert-detail-row"><span class="cert-detail-label">Expires</span><span class="cert-detail-val">{{ cert.expires_at[:10] if cert.expires_at else 'N/A' }}</span></div>
+                    <div class="cert-detail-row"><span class="cert-detail-label">Algorithm</span><span class="cert-detail-val">RSA 2048-bit + SHA-256</span></div>
+                    {% if not cert.is_valid and cert.revocation_reason %}
+                    <div class="cert-detail-row"><span class="cert-detail-label">Reason</span><span class="cert-detail-val">{{ cert.revocation_reason }}</span></div>
+                    {% endif %}
+                    <div class="cert-detail-row"><span class="cert-detail-label">Hybrid Enc.</span><span class="cert-detail-val"><i class="fas fa-lock text-primary"></i> AES-256 + RSA</span></div>
+                </div>
+                {% else %}
+                <div class="empty-state"><i class="fas fa-certificate"></i><p>No certificate issued.</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if user.role == 'citizen' %}
+    <div class="card mt-4">
+        <div class="card-header card-header-flex">
+            <h3 class="card-title"><i class="fas fa-folder-open"></i> Applications</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Tracking</th><th>Service</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td><code>{{ app.tracking_number }}</code></td>
+                            <td>{{ app.service_type.replace('_',' ').title() }}</td>
+                            <td><span class="status-badge status-{{ app.status }}">{{ app.status.replace('_',' ').title() }}</span></td>
+                            <td class="text-muted">{{ app.submitted_at[:10] }}</td>
+                            <td><a href="{{ url_for('admin_application_detail', app_id=app.id) }}" class="btn btn-sm btn-outline">View</a></td>
+                        </tr>
+                        {% endfor %}
+                        {% if not applications %}<tr><td colspan="5" class="text-center text-muted">No applications</td></tr>{% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>.hidden-form { display:none; }</style>
+{% endblock %}

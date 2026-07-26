@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — Nepal Digital Services{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> Administrator Dashboard</h1>
+            <p class="page-subtitle">System overview, user management and audit monitoring</p>
+        </div>
+        <span class="admin-badge"><i class="fas fa-user-shield"></i> Administrator</span>
+    </div>
+
+    <div class="stats-grid stats-grid-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#6C8EBF,#4A6FA5)"><i class="fas fa-users"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.citizens }}</div><div class="stat-label">Total Citizens</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><i class="fas fa-user-tie"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.officers }}</div><div class="stat-label">Gov. Officers</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fas fa-folder"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.total }}</div><div class="stat-label">Total Applications</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-shield-alt"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.verified }}</div><div class="stat-label">Verified Docs</div></div>
+        </div>
+    </div>
+
+    <div class="stats-grid stats-grid-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#94a3b8,#64748b)"><i class="fas fa-inbox"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.pending }}</div><div class="stat-label">Pending</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)"><i class="fas fa-search"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.under_review }}</div><div class="stat-label">Under Review</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.approved }}</div><div class="stat-label">Approved</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info"><div class="stat-value">{{ stats.rejected }}</div><div class="stat-label">Rejected</div></div>
+        </div>
+    </div>
+
+    <div class="admin-charts-grid">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-chart-bar"></i> Applications by Service</h3></div>
+            <div class="card-body">
+                {% for row in service_stats %}
+                <div class="bar-item">
+                    <div class="bar-label">
+                        {% if row.service_type == 'driving_license' %}<i class="fas fa-id-card"></i> Driving License
+                        {% elif row.service_type == 'business_registration' %}<i class="fas fa-building"></i> Business Reg.
+                        {% else %}<i class="fas fa-file-invoice-dollar"></i> Tax Filing{% endif %}
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width:{% if stats.total > 0 %}{{ (row.cnt / stats.total * 100)|int }}{% else %}0{% endif %}%"></div>
+                    </div>
+                    <div class="bar-count">{{ row.cnt }}</div>
+                </div>
+                {% endfor %}
+                {% if not service_stats %}<p class="text-muted text-center">No data yet</p>{% endif %}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-chart-pie"></i> Status Distribution</h3></div>
+            <div class="card-body">
+                {% for row in status_stats %}
+                <div class="donut-item">
+                    <div class="donut-color status-dot-{{ row.status }}"></div>
+                    <span>{{ row.status.replace('_',' ').title() }}</span>
+                    <span class="donut-count">{{ row.cnt }}</span>
+                    <div class="donut-bar">
+                        <div class="donut-fill status-fill-{{ row.status }}" style="width:{% if stats.total > 0 %}{{ (row.cnt / stats.total * 100)|int }}{% else %}0{% endif %}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not status_stats %}<p class="text-muted text-center">No data yet</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-bottom-grid">
+        <div class="card">
+            <div class="card-header card-header-flex">
+                <h3 class="card-title"><i class="fas fa-file-alt"></i> Recent Applications</h3>
+                <a href="{{ url_for('admin_applications') }}" class="btn btn-sm btn-outline">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead><tr><th>Tracking</th><th>Citizen</th><th>Service</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody>
+                            {% for app in recent_apps %}
+                            <tr>
+                                <td><a href="{{ url_for('admin_application_detail', app_id=app.id) }}"><code>{{ app.tracking_number }}</code></a></td>
+                                <td>{{ app.full_name }}</td>
+                                <td>{{ app.service_type.replace('_',' ').title() }}</td>
+                                <td><span class="status-badge status-{{ app.status }}">{{ app.status.replace('_',' ').title() }}</span></td>
+                                <td class="text-muted">{{ app.submitted_at[:10] }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% if not recent_apps %}<tr><td colspan="5" class="text-center text-muted">No applications</td></tr>{% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header card-header-flex">
+                <h3 class="card-title"><i class="fas fa-clipboard-list"></i> Recent Activity</h3>
+                <a href="{{ url_for('admin_audit_logs') }}" class="btn btn-sm btn-outline">Full Logs</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="audit-list">
+                    {% for log in recent_logs %}
+                    <div class="audit-item">
+                        <div class="audit-icon">
+                            {% if 'LOGIN' in log.action %}<i class="fas fa-sign-in-alt"></i>
+                            {% elif 'REGISTER' in log.action %}<i class="fas fa-user-plus"></i>
+                            {% elif 'SUBMIT' in log.action %}<i class="fas fa-paper-plane"></i>
+                            {% elif 'VERIFY' in log.action %}<i class="fas fa-shield-alt"></i>
+                            {% elif 'APPROVE' in log.action %}<i class="fas fa-check"></i>
+                            {% elif 'REJECT' in log.action %}<i class="fas fa-times"></i>
+                            {% elif 'OFFICER' in log.action %}<i class="fas fa-user-tie"></i>
+                            {% else %}<i class="fas fa-circle"></i>{% endif %}
+                        </div>
+                        <div class="audit-content">
+                            <div class="audit-action">{{ log.action.replace('_', ' ') }}</div>
+                            <div class="audit-user">{{ log.username or 'System' }} &bull; {{ log.ip_address }}</div>
+                        </div>
+                        <div class="audit-time">{{ log.timestamp[:16].replace('T',' ') }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
