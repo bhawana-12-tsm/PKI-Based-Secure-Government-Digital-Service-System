@@ -864,8 +864,10 @@ def admin_reissue_cert(user_id):
     db.execute('UPDATE users SET public_key=?, private_key_encrypted=? WHERE id=?',
                (pub_pem, priv_store, user_id))
     db.execute('UPDATE certificates SET is_valid=0 WHERE user_id=?', (user_id,))
-    db.execute('INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at) VALUES (?,?,?,?)',
-               (user_id, cert_pem, serial, exp))
+    db.execute(
+    'INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at, is_valid) VALUES (?,?,?,?,?)',
+    (user_id, cert_pem, serial, exp, 1)
+)
     db.commit()
     log_action(db, session['user_id'], 'REISSUE_CERT',
                f'New certificate issued for {user["username"]}', request.remote_addr)
