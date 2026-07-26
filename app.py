@@ -123,9 +123,9 @@ def register():
         )
         user_id = cur.lastrowid
         db.execute(
-            'INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at) VALUES (?,?,?,?)',
-            (user_id, cert_pem, serial, expires_at)
-        )
+    'INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at, is_valid) VALUES (?,?,?,?,?)',
+    (user_id, cert_pem, serial, expires_at, 1)
+)
         db.commit()
         log_action(db, user_id, 'REGISTER', f'New citizen registered: {username}', request.remote_addr)
         db.close()
@@ -778,8 +778,10 @@ def admin_create_officer():
             'VALUES (?,?,?,?,?,?,?,?)',
             (username, email, pw_hash, full_name, phone, 'officer', pub, priv_store)
         )
-        db.execute('INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at) VALUES (?,?,?,?)',
-                   (cur.lastrowid, cert_pem, serial, exp))
+        db.execute(
+    'INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at, is_valid) VALUES (?,?,?,?,?)',
+    (cur.lastrowid, cert_pem, serial, exp, 1)
+)
         db.commit()
         log_action(db, session['user_id'], 'CREATE_OFFICER',
                    f'Admin created officer: {username}', request.remote_addr)
@@ -986,8 +988,10 @@ def seed_defaults():
         cur = db.execute(
             'INSERT INTO users (username, email, password_hash, full_name, phone, role, public_key, private_key_encrypted) VALUES (?,?,?,?,?,?,?,?)',
             ('admin', 'admin@gov.np', pw, 'System Administrator', '9800000000', 'admin', pub, priv))
-        db.execute('INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at) VALUES (?,?,?,?)',
-                   (cur.lastrowid, cert, serial, exp))
+        db.execute(
+    'INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at, is_valid) VALUES (?,?,?,?,?)',
+    (cur.lastrowid, cert, serial, exp, 1)
+)
         db.commit()
     if not db.execute("SELECT id FROM users WHERE role='officer'").fetchone():
         pw = generate_password_hash('Officer@2024#Secure')
@@ -995,8 +999,10 @@ def seed_defaults():
         cur = db.execute(
             'INSERT INTO users (username, email, password_hash, full_name, phone, role, public_key, private_key_encrypted) VALUES (?,?,?,?,?,?,?,?)',
             ('officer', 'officer@gov.np', pw, 'Government Officer', '9800000001', 'officer', pub, priv))
-        db.execute('INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at) VALUES (?,?,?,?)',
-                   (cur.lastrowid, cert, serial, exp))
+        db.execute(
+    'INSERT INTO certificates (user_id, certificate_pem, serial_number, expires_at, is_valid) VALUES (?,?,?,?,?)',
+    (cur.lastrowid, cert, serial, exp, 1)
+)
         db.commit()
     db.close()
 
